@@ -47,6 +47,7 @@ class UserRegister(BaseModel):
   email: EmailStr
   password : str = Field(min_length=6)
   full_name:str
+  
 
 
 class UserLogin(BaseModel):
@@ -56,7 +57,7 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
   id :UUID
   email:str
-  full_name:str
+  name:str
   role:UserRole
   is_active:bool
   created_at:datetime
@@ -82,15 +83,15 @@ class ClaimCreate(BaseModel):
     line_items: List[LineItemCreate]
   
 class LineItemResponse(BaseModel):
-  id: UUID
-  category: ExpenseCategory
-  description: str
-  amount: float
-  expense_date: date
+    id: UUID
+    category: ExpenseCategory
+    description: str
+    amount: float
+    expense_date: date
   
   
-  class Config:
-    from_attributes=True
+    class Config:
+      from_attributes=True
     
 class ClaimResponse(BaseModel):
   id: UUID

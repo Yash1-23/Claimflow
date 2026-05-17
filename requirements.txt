@@ -1,9 +1,12 @@
-sqlalchemy 
+sqlalchemy  # database ORM
 fastapi
 uvicorn 
-psycopg2-binary
+psycopg2-binary #postgresql connector
 python-dotenv
 pydantic-settings
 jwt
-python-jose[cryptography]
-passlib[bcrypt]
+python-jose[cryptography] #JWT tokens
+passlib[bcrypt] 
+alembic #databse migrations
+email-validator
+bcrypt==4.0.1

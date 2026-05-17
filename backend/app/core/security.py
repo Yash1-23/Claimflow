@@ -16,12 +16,12 @@ def verify_password(plain_password:str, hashed_password:str) ->bool:
   return pwd_context.verify(plain_password, hashed_password)
 
 # this function will create access token for user when they logs in successfully and return the token to the user
-def create_access_token(data:dict, expries_delta: Optional[timedelta] = None):
+def create_access_token(data:dict, expires_delta: Optional[timedelta] = None):
   to_encode = data.copy()
-  if expries_delta:
-    expire = datetime.utcnow() + expries_delta
+  if expires_delta:
+    expire = datetime.utcnow() + expires_delta
   else:
-    expire =  datetime.utcnow() + timedelta(minutes= settings.ACCESS_TOKEN_EXPIRE_MINTUES)
+    expire =  datetime.utcnow() + timedelta(minutes= settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
   to_encode.update({"exp":expire})
   return jwt.encode(to_encode, settings.SECRET_KEY,algorithm=settings.ALGORITHM)

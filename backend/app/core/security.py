@@ -6,7 +6,15 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
+from fastapi import Depends,HTTPException
+from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+from app.core.database import get_db
+from app.models.models import User
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") #bycrpt it is the safest way to stor password
+http_bearer = HTTPBearer()
 
 def hash_password(password:str) ->str: #hash password convert plain password into hashedpassword
   return pwd_context.hash(password)
@@ -34,3 +42,26 @@ def decode_access_token(token:str):
   except JWTError:
     return None
 
+
+def get_current_user(
+  credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
+  db:Session = Depends(get_db)
+):
+  
+  token = credentials.credentials
+  payload = decode_access_token(token)
+  if not payload:
+    raise HTTPException(status_code=401,detail="invalid or expired token")
+  
+  user_id = payload.get("sub")
+  if not user_id:
+    raise HTTPException(status_code=401, detail="Invalid token")
+  
+  user = db.query(User).filter(User.id == user_id).first()
+  if not user:
+    raise HTTPException(status_code=401, detail="User not found")
+  
+  
+  return user
+  
+  

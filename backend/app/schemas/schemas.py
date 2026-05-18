@@ -57,7 +57,7 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
   id :UUID
   email:str
-  name:str
+  full_name:str
   role:UserRole
   is_active:bool
   created_at:datetime

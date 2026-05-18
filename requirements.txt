@@ -10,3 +10,4 @@ passlib[bcrypt]
 alembic #databse migrations
 email-validator
 bcrypt==4.0.1
+python-multipart

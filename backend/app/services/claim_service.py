@@ -49,8 +49,8 @@ def create_claim(db:Session, user_id: UUID,data: ClaimCreate) -> ExpenseClaim:
 def get_user_claims(db:Session,user_id:UUID)->list:
   return (
       db.query(ExpenseClaim)
-      .filter(ExpenseClaim)
-      .order_by(ExpenseClaim.user_id == user_id)
+      .filter(ExpenseClaim.user_id == user_id)
+      .order_by(ExpenseClaim.created_at.desc())
       .all()
   )
   

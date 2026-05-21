@@ -104,6 +104,27 @@ class ClaimResponse(BaseModel):
   class Config:
     from_attributes =True
     
+class ReceiptResponse(BaseModel):
+  """Response when receipts is uploaded or fetched"""
+  id : UUID
+  line_item_id: UUID
+  file_name:str
+  file_url:str
+  file_size:Optional[int] = None
+  mime_type: Optional[str]=None
+  
+  extracted_amount:Optional[float] =None
+  extracted_date:Optional[date]=None
+  extracted_merchant:Optional[str]=None
+  ocr_confidence:Optional[float]=None
+  
+  uploaded_at: datetime
+  uploaded_by:UUID
+  
+  class config:
+    from_attributes=True
+    
+    
     
     
   

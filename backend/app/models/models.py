@@ -98,7 +98,6 @@ class ExpenseClaim(Base):
   user = relationship("User", back_populates="claims")
   line_items = relationship("ClaimLineItem", back_populates="claim")
   approval_steps = relationship("ApprovalStep", back_populates="claim")
-  receipts = relationship("Receipt", back_populates ="claim")
   
   
 class ClaimLineItem(Base):
@@ -111,36 +110,40 @@ class ClaimLineItem(Base):
   description= Column(String(300), nullable=True)
   amount = Column(Float, nullable=False)
   expense_date = Column(Date, nullable=False)
-  receipt_id = Column(UUID(as_uuid=True),ForeignKey("receipts.id"), nullable=True)
   is_flagged = Column(Boolean, default=False)
   flag_reason = Column(String(255), nullable=True)
     
     
   claim = relationship("ExpenseClaim", back_populates="line_items")
-  receipt = relationship("Receipt")
+  receipts = relationship("Receipt",back_populates="line_item",cascade="all, delete-orphan")
         
 # this tables stores uploaded receipt files AI extracted data from OCR     
 class Receipt(Base):
-  __tablename__ = "receipts"
-  
-  
-  id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-  claim_id = Column(UUID(as_uuid=True), ForeignKey("expense_claims.id"), nullable=False)
-  file_url = Column(String(500),nullable=False)
-  file_name = Column(String(255),nullable=False)
-  file_size = Column(Integer, nullable=True)
-  
-  
-  #AI extracted data
-  extracted_amount = Column(Float, nullable=True)
-  extracted_date = Column(Date, nullable=True)
-  extracted_merchant =Column(String(255),nullable=True)
-  ocr_confidence= Column(Float, nullable=True)
-  
-  
-  uploaded_at = Column(DateTime, default=datetime.utcnow)
-  
-  claim = relationship("ExpenseClaim", back_populates="receipts")  
+    __tablename__ = "receipts"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    line_item_id = Column(UUID(as_uuid=True), ForeignKey("claim_line_items.id", ondelete="CASCADE"), nullable=False)
+    
+    # File info
+    file_name = Column(String(255), nullable=False)
+    file_path = Column(String(500), nullable=False)
+    file_url = Column(String(500), nullable=False)
+    file_size = Column(Integer, nullable=True)
+    mime_type = Column(String(50), nullable=True)
+    
+    # AI extracted data (OCR agent)
+    extracted_amount = Column(Float, nullable=True)
+    extracted_date = Column(Date, nullable=True)
+    extracted_merchant = Column(String(255), nullable=True)
+    ocr_confidence = Column(Float, nullable=True)
+    
+    # Metadata
+    uploaded_at = Column(DateTime, default=datetime.utcnow)
+    uploaded_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    
+    # Relationships
+    line_item = relationship("ClaimLineItem", back_populates="receipts")
+    uploader = relationship("User")
   
 # defines spending limits of each category
 class Policy(Base):
@@ -187,4 +190,7 @@ class AuditLog(Base):
   timestamp = Column(DateTime, default=datetime.utcnow)
   
   user = relationship("User")
+  
+
+  
   

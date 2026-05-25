@@ -124,7 +124,7 @@ def get_receipts_for_line_item(
     raise HTTPException(status_code=404,detail="Line item not found")
   
   if line_item.claim.user_id != current_user.id:
-    raise HTTPException(status_code=403,detial="Not your line item")
+    raise HTTPException(status_code=403,detail="Not your line item")
   
   #2. return all receipts for this line item
   receipts = db.query(Receipt).filter(
@@ -134,7 +134,7 @@ def get_receipts_for_line_item(
   return receipts
 
 # Adding a delete endpoint
-@router.delete("/{receipts_id}",status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{receipt_id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete_receipt(
   receipt_id :UUID,
   db:Session = Depends(get_db),
@@ -155,7 +155,7 @@ def delete_receipt(
   #3. check claim is still draft (can't modify submitted claim)
   if receipt.line_item.claim.status!=ClaimStatus.draft:
     raise HTTPException(
-      status_code=400,
+      status_code=409,
       detail="Cannot delete receipt of submitted/approved claim"
     )
     

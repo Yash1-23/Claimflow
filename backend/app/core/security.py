@@ -6,11 +6,11 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-from fastapi import Depends,HTTPException
+from fastapi import Depends,HTTPException,status
 from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.models.models import User
+from app.models.models import User,UserRole
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") #bycrpt it is the safest way to stor password
@@ -63,5 +63,22 @@ def get_current_user(
   
   
   return user
+
+
+def get_current_manager(
+  current_user: User = Depends(get_current_user)
+)-> User:
+  
+  """ Dependency to ensure the current user is a manager.
+      used to protect manger-only endpoints like approve/reject/pending
+  """
+  
+  if current_user.role != UserRole.manager:
+    raise HTTPException(
+      status_code = status.HTTP_403_FORBIDDEN,
+      detail = "Only managers can access this resource"
+    )
+    
+  return current_user
   
   

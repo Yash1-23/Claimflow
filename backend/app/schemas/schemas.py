@@ -11,7 +11,6 @@ WHy we need both:
 - Auto- generate swagger docs
 """
 
-
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime,date
@@ -47,6 +46,7 @@ class UserRegister(BaseModel):
   email: EmailStr
   password : str = Field(min_length=6)
   full_name:str
+  role:UserRole = UserRole.employee
   
 
 
@@ -65,7 +65,14 @@ class UserResponse(BaseModel):
   class Config:
     from_attributes =True 
     
-
+class UserBrief(BaseModel):
+  """Minimal user info for embedding in other responses"""
+  id :UUID
+  full_name :str
+  email:str
+  
+  class Config:
+    from_attributes = True 
 class TokenResponse(BaseModel):
   access_token:str
   token_type:str= "bearer"
@@ -92,15 +99,19 @@ class LineItemResponse(BaseModel):
   
     class Config:
       from_attributes=True
-    
+  
 class ClaimResponse(BaseModel):
   id: UUID
   title:str
   total_amount:float
+  description:Optional[str]
+  currency :str
   status: ClaimStatus
+  submitted_at:Optional[datetime]
+  approved_at:Optional[datetime]
   created_at : datetime
   line_items: List[LineItemResponse] = []
-  
+  user: Optional[UserBrief]=None
   class Config:
     from_attributes =True
     
@@ -121,8 +132,10 @@ class ReceiptResponse(BaseModel):
   uploaded_at: datetime
   uploaded_by:UUID
   
-  class config:
+  class Config:
     from_attributes=True
+    
+
     
     
     

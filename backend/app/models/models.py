@@ -74,7 +74,7 @@ class Department(Base):
   manager_id  = Column(UUID(as_uuid=True),ForeignKey("users.id"),nullable=True)
   
   users = relationship("User", back_populates="department",foreign_keys="User.department_id") 
-  
+  manager = relationship("User",foreign_keys=[manager_id])
   
   
 class ExpenseClaim(Base):
@@ -87,11 +87,12 @@ class ExpenseClaim(Base):
   description = Column(Text, nullable=True)
   total_amount = Column(Float, nullable=False)
   currency = Column(String(3), default="INR")
-  status = Column(Enum(ClaimStatus), default=ClaimStatus.draft)
+  status = Column(Enum(ClaimStatus), default=ClaimStatus.draft,nullable=False)
   risk_score = Column(Integer, default=0)
   policy_violations = Column(JSONB, default=list)
   submitted_at = Column(DateTime, nullable=True)
   approved_at = Column(DateTime, nullable=True)
+  rejected_at = Column(DateTime,nullable=True)
   created_at = Column(DateTime, default = datetime.utcnow)
   
   
@@ -106,7 +107,7 @@ class ClaimLineItem(Base):
     
   id = Column(UUID(as_uuid=True),primary_key=True, default=uuid.uuid4)
   claim_id = Column(UUID(as_uuid=True), ForeignKey("expense_claims.id"),nullable=False)
-  category = Column(Enum(ExpenseCategory), nullable=True)
+  category = Column(Enum(ExpenseCategory), nullable=False)
   description= Column(String(300), nullable=True)
   amount = Column(Float, nullable=False)
   expense_date = Column(Date, nullable=False)
@@ -190,6 +191,8 @@ class AuditLog(Base):
   timestamp = Column(DateTime, default=datetime.utcnow)
   
   user = relationship("User")
+  
+  
   
 
   

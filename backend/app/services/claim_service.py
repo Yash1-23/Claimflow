@@ -11,9 +11,11 @@ Why Service Layer?
 from sqlalchemy.orm import Session
 from uuid import UUID
 from datetime import datetime
+from app.services.rule_engine import run_rules
 from sqlalchemy.orm import Session
 from app.models.models import ExpenseClaim, ClaimLineItem,ClaimStatus
 from app.schemas.schemas import ClaimCreate
+from app.services.audit_service import log_action
 
 
 def create_claim(db:Session, user_id: UUID,data: ClaimCreate) -> ExpenseClaim:
@@ -53,6 +55,12 @@ def get_user_claims(db:Session,user_id:UUID)->list:
       .order_by(ExpenseClaim.created_at.desc())
       .all()
   )
+  #fix None policy_violations for old records
+  for claim in claims:
+      if claim.policy_violations is None:
+        claim.policy_violations =[]
+  return claims
+      
   
 
 def get_claim_by_id(db:Session,claim_id:UUID, user_id:UUID)-> ExpenseClaim | None:
@@ -73,10 +81,51 @@ def submit_claim(db:Session,claim_id:UUID,user_id:UUID) -> ExpenseClaim:
   if claim.status != ClaimStatus.draft:
     raise ValueError(f"Claim is already {claim.status},cannot submit")
   
-  claim.status = ClaimStatus.submitted
-  claim.submitted_at = datetime.utcnow()
+  # Gaurd : must have at least one lineitem 
+  if not claim.line_items:
+    raise ValueError("Claim must have at least on line item before submitting")
+
+
+  # Run rules 
+  decision = run_rules(claim,db)
+  now = datetime.utcnow()
   
+  #store all flags so manger sees them 
+  claim.policy_violations= [
+    {"severity":f.severity, "rule":f.rule,"message":f.message}
+    for f in decision.flags
+  ]
   
+  if decision.final_decision== "rejected":
+    #ony Block -level lands here (future dates, stale claim)
+    claim.status = ClaimStatus.rejected
+    claim.rejected_at=now
+    claim.submitted_at=now
+    log_action(
+       db,
+       user_id=user_id,
+       action="claim_rejected_auto",
+       entity_type="expense_claim",
+       entity_id=claim.id,
+       old_value={"status":"draft"},
+       new_value={"status":"rejected","reason":"BLOCK rule triggered"}
+     )
+  else:
+    # everything else -> manger review, with flags attached
+    claim.status = ClaimStatus.submitted
+    claim.submitted_at= now
+
+    log_action(
+      db,
+      user_id=user_id,
+      action="claim_submitted",
+      entity_type="expense_claims",
+      entity_id=claim.id,
+      old_value={"status":"draft"},
+      new_value={"status":"submitted","flags":claim.policy_violations}
+      
+    )
+    
   db.commit()
   db.refresh(claim)
   return claim

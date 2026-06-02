@@ -12,7 +12,7 @@ from  app.core.security import get_current_user
 from app.core.database import get_db
 from app.models.models import User,ExpenseClaim,ClaimLineItem,Receipt,ClaimStatus
 from app.schemas.schemas import ReceiptResponse
-
+from app.agents.ocr_agent import run_ocr_agent
 router = APIRouter()
 
 UPLOAD_DIR =Path("uploads/receipts")
@@ -82,7 +82,6 @@ async def upload_receipt(
   db.refresh(new_receipt)
   
   return new_receipt
-
 
 @router.get("/{receipt_id}", response_model=ReceiptResponse)
 def get_receipt(
@@ -167,3 +166,29 @@ def delete_receipt(
   # delete db record
   db.delete(receipt)
   db.commit()
+  
+  
+  
+@router.post("/{receipt_id}/extract", response_model=ReceiptResponse)
+def extract_receipt(
+    receipt_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Run OCR agent on uploaded receipt to extract amount, date, merchant."""
+    receipt = db.query(Receipt).filter(Receipt.id == str(receipt_id)).first()
+    if not receipt:
+        raise HTTPException(status_code=404, detail="Receipt not found")
+
+    if receipt.line_item.claim.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your receipt")
+
+    try:
+        run_ocr_agent(receipt.id, receipt.file_path, db)
+        db.refresh(receipt)
+        return receipt
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+

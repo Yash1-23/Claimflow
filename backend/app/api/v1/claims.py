@@ -1,4 +1,4 @@
-""" Claims API endpoints"""
+""" Claims API endpoints - thin HTTP Handlers, bussiness logic lives in services folder"""
 import uuid
 from fastapi import APIRouter,Depends,HTTPException,status
 from sqlalchemy.orm import Session, joinedload
@@ -14,29 +14,10 @@ from app.services.claim_service import (
   get_claim_by_id,
   submit_claim
 )
-
+from app.services.audit_service import log_action
+from app.services.approval_service import approve_claim_service,reject_claim_service
 
 router = APIRouter()
-
-
-
-@router.get("/pending", response_model=list[ClaimResponse])
-def get_pending_claims(
-    db : Session = Depends(get_db),
-    current_user: User = Depends(get_current_manager)
-):
-    """
-    Get all claims with status='submitted' waiting for manager approval.
-    Only accessible by managers.
-    """
-    
-    # 1. Query all submitted claims
-    pending_claims = db.query(ExpenseClaim).filter(
-        ExpenseClaim.status == ClaimStatus.submitted
-    ).all()
-    
-    # 2. Return list
-    return pending_claims
 
 
 @router.post("/", response_model=ClaimResponse)
@@ -109,58 +90,43 @@ def submit(
 @router.post("/{claim_id}/approve", response_model = ClaimResponse)
 def approve_claim(
   claim_id:UUID,
-  db:Session = Depends(get_db),
+  db:Session = Depends(get_db), 
   current_user :User= Depends(get_current_manager)
 ):
   """ Approve a submitted claim. Manager-Only action.
       Records approval in ApprovalStep table for audit trail.
   """
-  
-  #1. Find the claim
-  claim = db.query(ExpenseClaim).filter(
-    ExpenseClaim.id== claim_id
-  ).first()
-  
-  if not claim:
-    raise HTTPException(
-      status_code = status.HTTP_404_NOT_FOUND,
-      detail = "Claim not found"
-    )
-    
-  #2. check status - only submitted claims can be approved
-  if claim.status != ClaimStatus.submitted:
-    raise HTTPException(
-      status_code =status.HTTP_400_BAD_REQUEST,
-      detail = f"Cannot approve claim with status '{claim.status.value}'. Only submitted claims can be approved"
-    )
-  
-  #3. Update claims status & timestamp
-  claim.status = ClaimStatus.approved
-  claim.approved_at = datetime.utcnow() 
-  
-  #4. create approval step record (audit trail)
-  approval_step =  ApprovalStep(
-    id =uuid.uuid4(),
-    claim_id =claim.id,
-    approver_id =current_user.id,
-    step_order =1,
-    action = ApprovalAction.approved,
-    comments=None,
-    acted_at = datetime.utcnow()
-    
-    
-  )
-  db.add(approval_step)
-  
-  #5. commit return updated claims
-  db.commit()
-  db.refresh(claim)
-  return claim
-
-  
+  try:
+    return approve_claim_service(db,claim_id,current_user.id)
+  except ValueError as e:
+    if "not found" in str(e).lower():
+      raise HTTPException(status_code=404, detail=str(e))
+    raise HTTPException(status_code=400,detail=str(e))
   
   
  
+
+  
+@router.post("/{claim_id}/reject", response_model=ClaimResponse)
+def reject_claim(
+  claim_id:UUID,
+  comments:str, # rejection reason is required
+  db:Session= Depends(get_db),
+  current_user:User=Depends(get_current_manager)
+  
+):
+  """Reject a submitted claim, Manager-Only action
+     Rejection reason is required for audit trail.
+  """
+ 
+  try:
+      return reject_claim_service(db, claim_id, current_user.id, comments)
+  except ValueError as e:
+        if "not found" in str(e).lower():
+            raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
+  
+
 @router.delete("/{claim_id}", status_code=status.HTTP_204_NO_CONTENT) 
 def delete_claim(
   claim_id: UUID,

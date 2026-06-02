@@ -11,8 +11,8 @@ WHy we need both:
 - Auto- generate swagger docs
 """
 
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from pydantic import BaseModel, EmailStr, Field,validator
+from typing import Optional, List,Any
 from datetime import datetime,date
 from uuid import UUID
 from enum import Enum
@@ -31,7 +31,6 @@ class ClaimStatus(str,Enum):
   under_review ="under_review"
   approved = "approved"
   rejected = "rejected"
-  paid ="paid"
   
 
 class ExpenseCategory(str, Enum):
@@ -39,6 +38,9 @@ class ExpenseCategory(str, Enum):
   food = "food"
   transport = "transport"
   accommodation = "accommodation"
+  fuel="fuel"
+  office_supplies="office_supplies"
+  communication_bills ="communication_bills" # wifi
   other = "other"
   
 #User Schema
@@ -61,6 +63,7 @@ class UserResponse(BaseModel):
   role:UserRole
   is_active:bool
   created_at:datetime
+  
   
   class Config:
     from_attributes =True 
@@ -110,8 +113,14 @@ class ClaimResponse(BaseModel):
   submitted_at:Optional[datetime]
   approved_at:Optional[datetime]
   created_at : datetime
+  policy_violations:Optional[List[Any]] = []
   line_items: List[LineItemResponse] = []
   user: Optional[UserBrief]=None
+  
+  @validator('policy_violations', pre=True,always=True)
+  def fix_none_violations(cls,v):
+    return v if v is not None else []
+  
   class Config:
     from_attributes =True
     
@@ -136,6 +145,25 @@ class ReceiptResponse(BaseModel):
     from_attributes=True
     
 
+# Department Schemas
+class DepartmentCreate(BaseModel):
+  name:str
+  
+
+class DepartmentUpdate(BaseModel):
+  name :Optional[str] = None
+  manager_id : Optional[UUID] = None
+  
+
+class DepartmentResponse(BaseModel):
+  id:UUID
+  name:str
+  manager_id:Optional[UUID] = None
+  
+  
+  class Config:
+    from_attributes=True
+    
     
     
     

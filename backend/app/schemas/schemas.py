@@ -464,7 +464,7 @@ class EmployeeAnalytics(BaseModel):
   total_amount: float
   approved_count: int
   approved_amount:float
-  pending_count:int
+  pending_count:int  # submitted + under review
   pending_amount:float
   rejected_count:int
   rejected_amount:float

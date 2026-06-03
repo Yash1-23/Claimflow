@@ -122,7 +122,7 @@ class ExpenseClaim(Base):
   total_amount = Column(Float, nullable=False)
   currency = Column(String(3), default="INR")
   status = Column(Enum(ClaimStatus), default=ClaimStatus.draft,nullable=False)
-  risk_score = Column(float, default=0) # 0.0 to 1.0 fraud score
+  risk_score = Column(Float, default=0) # 0.0 to 1.0 fraud score
   policy_violations = Column(JSONB, default=list)
   submitted_at = Column(DateTime, nullable=True)
   approved_at = Column(DateTime, nullable=True)

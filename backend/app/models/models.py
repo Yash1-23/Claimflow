@@ -17,10 +17,10 @@ class UserRole(str,enum.Enum):
   admin = "admin"
   
 class EmployeeLevel(str, enum.Enum):
-  L1_L3 = "L1-L3"    #Junior
-  L4_L6  = "L4-L6"   # Senior
-  L7_L9  = "L7-L9"   # Manager
-  L10_UP = "L10+"     # Director and above
+  junior = "junior"
+  senior  =  "senior"
+  manager  =  "manager"
+  director =  "director"
 class ClaimStatus(str, enum.Enum):
   draft = "draft"
   submitted = "submitted"
@@ -89,7 +89,7 @@ class User(Base):
   created_at = Column(DateTime, default=datetime.utcnow) 
   
   # employee level for policy limits
-  employee_level = Column(Enum(EmployeeLevel),default=EmployeeLevel.L1_L3, nullable=True)
+  employee_level = Column(Enum(EmployeeLevel),default=EmployeeLevel.junior, nullable=True)
   
   #relationship
   department = relationship("Department", back_populates="users",foreign_keys=[department_id])

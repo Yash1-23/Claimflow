@@ -26,14 +26,10 @@ class UserRole(str, Enum):
    admin = "admin"
   
 class EmployeeLevel(str, Enum):
-  L1_L3= "L1-L3"  #junior Employee
-  L4_L6 = "L4-L6"  # Senior
-  L7_L9 = "L7-L9"  #Manager
-  L10_UP ="L10+"   # Diectors and above
-  
-  
-  
-  
+  junior   = "junior"
+  senior   = "senior"
+  manager  = "manager"
+  director = "director"
    
 class ClaimStatus(str,Enum):
   draft= "draft"
@@ -91,7 +87,6 @@ class UserRegister(BaseModel):
   password : str = Field(min_length=6)
   full_name:str
   role:UserRole = UserRole.employee
-  employee_level :EmployeeLevel = EmployeeLevel.L1_L3
   
 
 

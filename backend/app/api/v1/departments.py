@@ -22,26 +22,24 @@ def create_department(
   current_user: User = Depends(get_current_manager), ##logged in manager
 ):
   
-  """Create a new department. Manager/Admin Only"""
-
+  """Create a new department. Manager/Admin Only
+     Logged in manger is automatically set as manager
+  """
+     
   
   #Check if department name already exists
   existing = db.query(Department).filter(Department.name==data.name).first()
   if existing:
     raise HTTPException(status_code=400, detail="Department already exists")
   
-  
-  #validate manager_id refers to a real user
-  
-  if data.manager_id:
-    manager = db.query(User).filter(User.id == data.manager_id).first()
-    if not manager:
-      raise HTTPException(status_code=400, detail="Invalid manager ID")
+
 
   dept = Department(
     id = uuid.uuid4(),
     name= data.name,
+    bau_code=data.bau_code,
     manager_id =current_user.id,
+    
     
   )
   

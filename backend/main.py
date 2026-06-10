@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine,Base
 from app.api.v1 import users,claims,receipts,departments,analytics
 from fastapi.staticfiles import StaticFiles
-
+from app.api.v1.rag import router as rag_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -29,6 +29,7 @@ app.include_router(claims.router,prefix="/api/v1/claims",tags=["claims"])
 app.include_router(receipts.router,prefix="/api/v1/receipts",tags=["receipts"])
 app.include_router(departments.router,prefix="/api/v1/departments",tags=["Departments"])
 app.include_router(analytics.router,prefix="/api/v1/analytics",tags=["Analytics"])
+app.include_router(rag_router,prefix="/api/v1/rag",tags=["Policy RAG"])
 @app.get("/")
 def root():
   return {"message": "ClaimFlow API is running"}

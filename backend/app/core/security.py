@@ -93,3 +93,22 @@ def get_current_admin(
     return current_user
   
   
+def require_role(*allowed_roles: str):
+    """
+    Dependency that checks if current user has one of the allowed roles.
+    
+    Usage:
+        Depends(require_role("admin"))
+        Depends(require_role("admin", "finance"))
+    """
+    async def role_checker(current_user=Depends(get_current_user)):
+        if current_user.role.value not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied. Required role: {', '.join(allowed_roles)}"
+            )
+        return current_user
+    return role_checker
+
+  
+  

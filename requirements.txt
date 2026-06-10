@@ -13,8 +13,13 @@ bcrypt==4.0.1
 python-multipart
 langgraph
 langchain
+langchain-community
 pytesseract
 pillow 
 langchain-groq
 groq
 pdf2image
+chromadb
+langchain-text-splitters
+sentence-transformers==2.7.0
+pdfplumber

@@ -1,6 +1,6 @@
 import  pdfplumber
 import chromadb
-
+import re
 from sentence_transformers import SentenceTransformer
 from pathlib import Path
 import uuid
@@ -18,6 +18,12 @@ chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
 
 # A "collection" is like a table in chromaDB - stroes all policy chunks
 collection = chroma_client.get_or_create_collection(name="policy_docs")
+
+# cleaning text
+def clean_chunk(text:str)->str:
+  text = re.sub(r'\s+',' ',text)
+  text = text.strip()
+  return text
 
 
 # Ingestion function
@@ -77,14 +83,14 @@ def query_policy(question: str, top_k: int=3) -> list[str]:
    
   """
   # Embed the question (same model, so vectors are comparable)
-  question_embedding = embedder.encode([question]).tolist()
+  question_embedding = embedder.encode(question).tolist()
   
   # search chromDB for the most similar chunks
   results = collection.query(
-    query_embeddings=question_embedding,
+    query_embeddings=[question_embedding],
     n_results=top_k
   )
-  
+  print("DEBUG results:",results["documents"])
   return results["documents"][0]
 
   

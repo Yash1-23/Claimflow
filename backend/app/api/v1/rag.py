@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from app.agents.policy_agent import check_claim_against_policy
+from typing import Optional,List
+from app.agents.policy_agent import check_claim_against_policy,chat_with_policy
 from app.services.rag_service import ingest_policy_pdf,debug_check_chromadb
 from app.core.security import get_current_user,require_role
 
@@ -17,7 +18,14 @@ class PolicyCheckRequest(BaseModel):
   amount:float
   employee_level:str 
   description:str
+
+class ChatMessage(BaseModel):
+  role:str
+  content:str
   
+class ChatRequest(BaseModel):
+  message:str
+  conversation_history:Optional[List[ChatMessage]] = None
 
 # 2.Ingestion Endpoint
 #Only admin can call this - you dont want employee re-indexing the policy
@@ -43,7 +51,29 @@ def ingest_policy(
   
   except Exception as e:
     raise HTTPException(status_code=500,detail=f"ingestion failed: {str(e)}")
+ 
+ 
+# chatRequest
+@router.post("/chat-policy")
+def chat_policy_endpoint(
+  request:ChatRequest,
+  current_user=Depends(get_current_user)
+): 
   
+  """ Natural language policy checker.
+      Example: I spent 4500 on hotel in Hyderbad, I'm a senior employee
+  """
+  try:
+    history=None
+    if request.conversation_history:
+      history = [m.model_dump() for m in request.conversation_history]
+      
+    result= chat_with_policy(request.message,request.conversation_history)
+    return result
+  except Exception as e:
+    raise HTTPException(status_code=500,detail=f"Chat policy failed: {str(e)}")
+  
+    
   
 # 3. Policy check endpoint
 # Any logged-in user can call this
@@ -70,13 +100,15 @@ def check_policy(
     
   except Exception as e:
     raise HTTPException(status_code=500,detail=f"Policy check failed: {str(e)}")
+ 
+ 
   
-  
-  
+
 @router.get("/debug-chromadb")
 def debug_chromadb_status(
   current_user =Depends(get_current_user)
 ):
   """Check chromdb status show if chunks exist"""
   return debug_check_chromadb()
+    
     

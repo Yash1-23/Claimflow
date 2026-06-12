@@ -154,8 +154,7 @@ class ExpenseClaim(Base):
   user = relationship("User", back_populates="claims")
   line_items = relationship("ClaimLineItem", back_populates="claim",cascade="all, delete-orphan")
   approval_steps = relationship("ApprovalStep", back_populates="claim")
-  fraud_alerts = relationship("FraudAlert",back_populates="claim") 
-  
+  fraud_alerts =relationship("FraudAlert",back_populates="claim")
 class ClaimLineItem(Base):
   __tablename__ = "claim_line_items"
     

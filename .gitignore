@@ -43,3 +43,6 @@ app/agents/chroma_policy_db/
 backend/app/agents/policy_docs
 backend/app/agents/_pycache
 
+
+backend/test_fraud.py
+

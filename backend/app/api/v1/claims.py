@@ -52,7 +52,7 @@ def get_pending_claims(
     joinedload(ExpenseClaim.user),
     joinedload(ExpenseClaim.line_items)
     ).filter(
-    ExpenseClaim.status == ClaimStatus.submitted
+    ExpenseClaim.status.in_([ClaimStatus.submitted,ClaimStatus.under_review])
   ).all()
   
   return pending_claims

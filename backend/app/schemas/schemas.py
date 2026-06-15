@@ -12,7 +12,7 @@ WHy we need both:
 """
 
 from pydantic import BaseModel, EmailStr, Field,validator
-from typing import Optional, List,Any
+from typing import Optional, List,Any,Union
 from datetime import datetime,date
 from uuid import UUID
 from enum import Enum
@@ -193,7 +193,7 @@ class ClaimResponse(BaseModel):
   agent_decision: Optional[str] = None
   agent_reasoning: Optional[str] =None
   # violations
-  policy_violations:Optional[List[Any]] = []
+  policy_violations:Optional[Union[list,dict]] = None
   # Appeal
   appeal_reason:Optional[str] = None
   appeal_deadline:Optional[datetime]= None
@@ -207,7 +207,7 @@ class ClaimResponse(BaseModel):
   
   @validator('policy_violations', pre=True,always=True)
   def fix_none_violations(cls,v):
-    return v if v is not None else []
+    return v 
   
   class Config:
     from_attributes =True

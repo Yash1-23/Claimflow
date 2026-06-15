@@ -45,10 +45,10 @@ def approve_claim_service(
   
     
   #2. check status - only submitted claims can be approved
-  if claim.status != ClaimStatus.submitted:
+  if claim.status not in  (ClaimStatus.submitted,ClaimStatus.under_review):
     raise ValueError(
       f"Cannot approve claim with status '{claim.status.value}'."
-      f"Only submitted claims can be approved."
+      f"Only submitted or under_review claims can be approved."
     )
   
   #3. Update claims status & timestamp
@@ -107,9 +107,9 @@ def reject_claim_service(
     )
     
   #2. Only submitted claims can be rejected
-  if claim.status!= ClaimStatus.submitted:
+  if claim.status not in (ClaimStatus.submitted,ClaimStatus.under_review):
     raise ValueError(
-      f"Cannot reject claim with status '{claim.status.value}'. Only submitted claim can be rejected."
+      f"Cannot reject claim with status '{claim.status.value}'. Only submitted or under_review claim can be rejected."
       
     )
   #3. validate comments not empty

@@ -4,7 +4,7 @@ Claims Service - Bussiness logic for claims
 
 Why Service Layer?
 - API route should only handle HTTP( request/response)
-- Bussiness logic lives here (calculations, DB operations)
+- Bussiness logic lives here (calculations, DB operations, orchestration)
 - Easy to test without HTTP
 """
 
@@ -114,7 +114,21 @@ def submit_claim(db:Session,claim_id:UUID,user_id:UUID) -> ExpenseClaim:
     # everything else -> manger review, with flags attached
     claim.status = ClaimStatus.submitted
     claim.submitted_at= now
-
+    db.commit()
+    db.refresh(claim)
+    
+    
+    # Run multiagent orchestration : fraud -> policy -> approval -> save
+    # The pipeline writes risk_score,agent_decision, agent_reasoning,
+    # policy_violations, and sets status to under_review
+    
+    try:
+      pipeline_result= run_claim_pipeline(db,claim)
+    except Exception as e:
+      # if the pipeline fails, the claim stays 'submitted' for manual review.
+      pipeline_result = {"error":str(e)}
+      
+    db.refresh(claim)
     log_action(
       db,
       user_id=user_id,
@@ -122,7 +136,11 @@ def submit_claim(db:Session,claim_id:UUID,user_id:UUID) -> ExpenseClaim:
       entity_type="expense_claims",
       entity_id=claim.id,
       old_value={"status":"draft"},
-      new_value={"status":"submitted","flags":claim.policy_violations}
+      new_value={
+        "status": claim.status.value if claim.status else "submitted",
+        "agent_recommendation":claim.agent_decision,
+        "risk_score":claim.risk_score,
+      },
       
     )
     

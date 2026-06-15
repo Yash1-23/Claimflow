@@ -45,4 +45,8 @@ backend/app/agents/_pycache
 
 
 backend/test_fraud.py
+backend/app/agents/chroma_policy_db/
+
+__pycache__/
+test_fraud.py
 

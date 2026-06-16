@@ -104,11 +104,6 @@ def check_policy(
  
   
 
-@router.get("/debug-chromadb")
-def debug_chromadb_status(
-  current_user =Depends(get_current_user)
-):
-  """Check chromdb status show if chunks exist"""
-  return debug_check_chromadb()
+
     
     

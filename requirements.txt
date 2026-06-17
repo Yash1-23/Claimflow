@@ -13,7 +13,7 @@ bcrypt==4.0.1
 python-multipart
 langgraph
 langchain
-langchain-community
+langchain-community<0.2.0
 pytesseract
 pillow 
 langchain-groq
@@ -23,3 +23,5 @@ chromadb
 langchain-text-splitters
 sentence-transformers==2.7.0
 pdfplumber
+ragas
+datasets

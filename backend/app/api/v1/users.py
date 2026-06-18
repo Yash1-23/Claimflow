@@ -32,7 +32,7 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-@limiter.limt("10/minute")
+@limiter.limit("10/minute")
 def login(request:Request,user : UserLogin, db:Session=Depends(get_db)):
   db_user = db.query(User).filter(User.email == user.email).first()
   if not db_user or not verify_password(user.password,db_user.password_hash):

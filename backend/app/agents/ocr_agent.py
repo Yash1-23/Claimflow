@@ -6,7 +6,7 @@ load_image ->extract_text (tesseract) ->prase_data (llamaAPI) -> save_to_db
 
 
 """
-
+import platform
 import pytesseract
 from app.core.config import Settings,settings
 from PIL import Image
@@ -24,12 +24,12 @@ from dotenv import load_dotenv
 from pdf2image import convert_from_path
 import os
 # Tell pytesseract where tessereact.exe is
-pytesseract.pytesseract.tesseract_cmd= r"D:/Program Files/Tesseract-OCR/tesseract.exe"
-
+if platform.system() == "Windows":
+  pytesseract.pytesseract.tesseract_cmd= r"D:/Program Files/Tesseract-OCR/tesseract.exe"
 
 # Poppler path
 
-POPPLER_PATH =r"D:\Users\yashw\Downloads\Release-26.02.0-0\poppler-26.02.0\Library\bin"
+POPPLER_PATH =r"D:\Users\yashw\Downloads\Release-26.02.0-0\poppler-26.02.0\Library\bin" if platform.system() == "Windows" else "/usr/bin"
 
 
 # Building State

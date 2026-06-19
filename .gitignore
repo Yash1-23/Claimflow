@@ -38,9 +38,8 @@ uploads/
 
 
 #chroma Db vector stores
-app/agents/chroma_policy_db/
 
-backend/app/agents/policy_docs
+
 backend/app/agents/_pycache
 
 

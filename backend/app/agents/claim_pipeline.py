@@ -17,9 +17,8 @@ The manager then approve/rejects via the existing endpoints
     
 """
 
-from typing import TypedDict, Optional,List
+from typing import TypedDict, Optional,List,Any
 from langgraph.graph import StateGraph,START,END
-from sqlalchemy.orm import SQLORMExpression
 from datetime import datetime
 from app.services.fraud_service import score_claim_fraud_risk,create_fraud_alert_if_needed
 from app.agents.policy_agent import check_claim_against_policy
@@ -100,7 +99,7 @@ def policy_node(state:ClaimPipelineState,config) ->dict:
     }
     
   except Exception as e:
-    return {"policy_verdict":"flagged","policy_verdict":f"policy check erro:{e}"}
+    return {"policy_verdict":"flagged","policy_verdict":f"policy check error:{e}"}
 
 
 def approval_node(state:ClaimPipelineState,config)->dict:

@@ -49,3 +49,5 @@ backend/app/agents/chroma_policy_db/
 __pycache__/
 test_fraud.py
 
+backend/sync_enum.py
+

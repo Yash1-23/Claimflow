@@ -25,5 +25,5 @@ pyJWT
 plotly
 slowapi
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch-cpu
+torch
 

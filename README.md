@@ -10,8 +10,7 @@ A production-grade B2B expense management system where a LangGraph-orchestrated 
 
 Architecture
 
-![Uploading ChatGPT Image Jun 24, 2026, 07_36_27 PM.png…]()
-
+"C:\Users\yashw\Downloads\ChatGPT Image Jun 24, 2026, 07_36_27 PM.png"
 
 Flow: An employee submits a claim → FastAPI (JWT + RBAC) → the OCR agent extracts receipt data → a deterministic rule engine runs BLOCK-level checks → the LangGraph pipeline runs the agents (fraud → policy RAG → approval → save) over a shared state → results are persisted to PostgreSQL → the claim enters the manager's review queue with a risk score, policy verdict, and recommendation. The manager makes the final call, and every step is audit-logged.
 

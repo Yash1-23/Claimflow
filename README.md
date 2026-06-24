@@ -106,7 +106,7 @@ This is the human-in-the-loop handoff: the agents analyze, the manager sees the 
 
 ## Tech Stack
 
-Layer              Technology
+Layer                Technology
 
 Orchestration        LangGraph
 
@@ -142,27 +142,27 @@ ClaimFlow uses PostgreSQL as the relational database and SQLAlchemy (ORM) as the
 
 Table                                         Purpose
 
-users                        Accounts with roles (employee/manager/admin) and employee levels.
+users               ->        Accounts with roles (employee/manager/admin) and employee levels.
 
-departments                  Org structure, BAU project codes, department managers,assging department.
+departments         ->        Org structure, BAU project codes, department managers,assging department.
 
-expense_claims               Claim header — status, risk score, agent decision/reasoning, RAG chunks.
+expense_claims      ->       Claim header — status, risk score, agent decision/reasoning, RAG chunks.
 
-claim_line_items             Individual expense lines — category, amount, beneficiary, city tier, OCR mismatch.
+claim_line_items    ->       Individual expense lines — category, amount, beneficiary, city tier, OCR mismatch.
 
-receipts                     Uploaded receipts + OCR-extracted fields.
+receipts            ->       Uploaded receipts + OCR-extracted fields.
 
-policies                     Per-category spending limits, deadlines, project-code rules.
+policies           ->        Per-category spending limits, deadlines, project-code rules.
 
-policy_approval_rules        Approval hierarchy by claim amount (manager)
+policy_approval_rules   ->     Approval hierarchy by claim amount (manager)
 
-policy_beneficiary_rules     Medical limits per beneficiary (self/spouse/child/parent)
+policy_beneficiary_rules  ->    Medical limits per beneficiary (self/spouse/child/parent)
 
-approval_steps               Multi-step approval workflow with SLA tracking
+approval_steps        ->        Multi-step approval workflow with SLA tracking
 
-fraud_alerts                 Rule based Fraud detection results with severity and resolution.
+fraud_alerts        ->         Rule based Fraud detection results with severity and resolution.
 
-audit_logs                   Every action recorded for full traceability
+audit_logs          ->         Every action recorded for full traceability
 
 
 
@@ -180,17 +180,17 @@ FastAPI routers under app/api/v1/:
 
 Router                                   Endpoints
 
-users                            register, login, set employee level
+users             ->               register, login, set employee level
 
-claims                           create, list, get, delete, submit, approve, reject
+claims            ->               create, list, get, delete, submit, approve, reject
 
-receipts                         upload, get, delete, OCR extract
+receipts          ->               upload, get, delete, OCR extract
 
-rag                              ingest policy, chat-policy, check-policy
+rag               ->               ingest policy, chat-policy, check-policy
 
-departments                      CRUD, assign user
+departments       ->               CRUD, assign user
 
-analytics                        employee / manager / admin summaries
+analytics         ->               employee / manager / admin summaries
 
 
 ## Getting Started

@@ -20,7 +20,7 @@ This enables organizations to reduce manual effort, improve policy compliance, s
 
 ## Architecture
 
-<img width="1024" height="1536" alt="Architecture_claimflow" src="https://github.com/user-attachments/assets/0ec48bf9-a9d6-40a7-a28c-dbdc98289da3" />
+<img width="1024" height="1536" alt="Architecture (2)" src="https://github.com/user-attachments/assets/95394b80-d0d0-45b5-9669-ed9bf6e5f41f" />
 
 Flow: An employee submits a claim → FastAPI (JWT + RBAC) → the OCR agent extracts receipt data → a deterministic rule engine runs BLOCK-level checks → the LangGraph pipeline runs the agents (fraud → policy RAG → approval → save) over a shared state → results are persisted to PostgreSQL → the claim enters the manager's review queue with a risk score, policy verdict, and recommendation. The manager makes the final call, and every step is audit-logged.
 

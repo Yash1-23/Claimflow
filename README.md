@@ -212,15 +212,25 @@ Interactive API docs at https://claimflow-production-176f.up.railway.app/docs
 backend/
 ├── app/
 │   ├── agents/         # claim_pipeline (LangGraph), policy_agent, approval_agent, ocr_agent
+
 │   ├── api/v1/         # users, claims, receipts, rag, departments, policies, approvals, analytics
+
 │   ├── core/           # config, database, security
+
 │   ├── models/         # SQLAlchemy models (11 tables)
+
 │   ├── schemas/        # Pydantic schemas
+
 │   └── services/       # claim, fraud, rag, approval, audit services + rule_engine
+
 ├── rag_eval_dataset.py # evaluation test cases
+
 ├── rag_evaluation.py   # LLM-as-judge evaluation
+
 ├── dockerfile
+
 ├── nixpacks.toml
+
 └── main.py
 
 

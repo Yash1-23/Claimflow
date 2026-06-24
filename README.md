@@ -81,15 +81,24 @@ Example of a processed claim:
 
 {
   "status": "under_review",
+  
   "risk_score": 0.10,
+  
   "agent_decision": "APPROVE",
+  
   "agent_reasoning": "Claim of Rs 4,500 is policy-compliant with low fraud risk (0.10)...",
+  
   "policy_violations": {
-    "policy_verdict": "approved",
-    "policy_reason": "Matched Max/Night: limit Rs 5,000. Claim Rs 4,500 within limit.",
-    "fraud_severity": "low",
-    "recommendation": "APPROVE",
-    "priority": "low"
+  
+  "policy_verdict": "approved",
+    
+   "policy_reason": "Matched Max/Night: limit Rs 5,000. Claim Rs 4,500 within limit.",
+   
+  "fraud_severity": "low",
+  
+  "recommendation": "APPROVE",
+  
+  "priority": "low"
   }
 }
 

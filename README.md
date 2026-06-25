@@ -144,7 +144,7 @@ Table                                         Purpose
 
 users               ->        Accounts with roles (employee/manager/admin) and employee levels.
 
-departments         ->        Org structure, BAU project codes, department managers,assging department.
+departments         ->        Org structure, BAU project codes, department managers,assgining department.
 
 expense_claims      ->       Claim header — status, risk score, agent decision/reasoning, RAG chunks.
 
